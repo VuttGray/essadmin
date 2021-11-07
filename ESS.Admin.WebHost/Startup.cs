@@ -28,6 +28,10 @@ namespace ESS.Admin.WebHost
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var appOptions = Configuration.Get<AppOptions>();
+            services.AddSingleton(appOptions);
+            services.Configure<AppOptions>(Configuration);
+
             services.AddControllers();
             services.AddScoped(typeof(IRepository<User>),
                 (x) => new InMemoryRepository<User>(FakeDataFactory.Users));
@@ -53,21 +57,14 @@ namespace ESS.Admin.WebHost
             }
 
             app.UseOpenApi();
-            app.UseSwaggerUi3(x =>
-            {
-                x.DocExpansion = "list";
-            });
+            app.UseSwaggerUi3(x => { x.DocExpansion = "list"; });
+            app.UseReDoc(x => x.Path = "/redoc");
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
-            //app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
     }
 }
