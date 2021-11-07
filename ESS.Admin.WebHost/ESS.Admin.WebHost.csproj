@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NSwag.AspNetCore" Version="13.13.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ESS.Admin.Core\ESS.Admin.Core.csproj" />
+    <ProjectReference Include="..\ESS.Admin.DataAccess\ESS.Admin.DataAccess.csproj" />
+  </ItemGroup>
+
+
+</Project>
