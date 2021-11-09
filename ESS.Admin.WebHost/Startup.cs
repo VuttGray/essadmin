@@ -14,6 +14,8 @@ using ESS.Admin.Core.Abstractions.Repositories;
 using ESS.Admin.Core.Domain.Administration;
 using ESS.Admin.DataAccess.Data;
 using ESS.Admin.DataAccess.Repositories;
+using Microsoft.EntityFrameworkCore;
+using ESS.Admin.DataAccess;
 
 namespace ESS.Admin.WebHost
 {
@@ -33,10 +35,15 @@ namespace ESS.Admin.WebHost
             services.Configure<AppOptions>(Configuration);
 
             services.AddControllers();
-            services.AddScoped(typeof(IRepository<User>),
-                (x) => new InMemoryRepository<User>(FakeDataFactory.Users));
-            services.AddScoped(typeof(IRepository<Message>),
-                (x) => new InMemoryRepository<Message>(FakeDataFactory.Messages));
+
+            services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+            services.AddScoped<IDbInitializer, EfDbInitializer>();
+            services.AddDbContext<DataContext>(x =>
+            {
+                x.UseSqlite("Filename=EssDb.sqlite");
+                x.UseUpperSnakeCaseNamingConvention();
+                x.UseLazyLoadingProxies();
+            });
 
             services.AddOpenApiDocument(options =>
             {
@@ -45,7 +52,7 @@ namespace ESS.Admin.WebHost
             });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IDbInitializer dbInitializer)
         {
             if (env.IsDevelopment())
             {
@@ -65,6 +72,8 @@ namespace ESS.Admin.WebHost
             app.UseRouting();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+         
+            dbInitializer.InitializeDb();
         }
     }
 }
