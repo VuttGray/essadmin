@@ -35,7 +35,7 @@ namespace ESS.Admin.WebHost
             services.AddSingleton(appOptions);
             services.Configure<AppOptions>(Configuration);
 
-            services.AddControllers();
+            services.AddControllers(options => options.SuppressAsyncSuffixInActionNames = false);
 
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped<IDbInitializer, EfDbInitializer>();
