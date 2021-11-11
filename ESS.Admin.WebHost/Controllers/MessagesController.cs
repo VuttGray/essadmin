@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ESS.Admin.Core.Abstractions.Repositories;
 using ESS.Admin.Core.Domain.Administration;
+using ESS.Admin.WebHost.Mappers;
 using ESS.Admin.WebHost.Models;
 
 namespace ESS.Admin.WebHost.Controllers
@@ -17,10 +18,13 @@ namespace ESS.Admin.WebHost.Controllers
     public class MessagesController : ControllerBase
     {
         private readonly IRepository<Message> _repository;
+        private readonly IMessageMapper _messageMapper;
 
-        public MessagesController(IRepository<Message> messagesRepository)
+        public MessagesController(IRepository<Message> messagesRepository,
+            IMessageMapper messageMapper)
         {
             _repository = messagesRepository;
+            _messageMapper = messageMapper;
         }
 
         /// <summary>
@@ -69,17 +73,8 @@ namespace ESS.Admin.WebHost.Controllers
         [HttpPost]
         public async Task<ActionResult<MessageResponse>> CreateMessageAsync(CreateMessageRequest request)
         {
-            var message = new Message()
-            {
-                RecordId = Guid.NewGuid(),
-                Subject = request.Subject,
-                Body = request.Body,
-                CreatedDate = DateTime.Now,
-                Attempts = 0,
-            };
-
+            var message = _messageMapper.MapFromModel(request);
             await _repository.AddAsync(message);
-
             return CreatedAtAction(nameof(GetMessageAsync), new { id = message.RecordId }, null);
         }
 

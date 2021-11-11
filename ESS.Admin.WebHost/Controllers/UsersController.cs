@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using ESS.Admin.Core.Abstractions.Repositories;
 using ESS.Admin.Core.Domain.Administration;
 using ESS.Admin.WebHost;
+using ESS.Admin.WebHost.Mappers;
 using ESS.Admin.WebHost.Models;
 using Microsoft.Extensions.Options;
 
@@ -19,11 +20,15 @@ namespace EssAdmin.WebHost.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IRepository<User> _repository;
+        private readonly IUserMapper _userMapper;
         private readonly AppOptions _appOptions;
 
-        public UsersController(IRepository<User> userRepository, AppOptions options)
+        public UsersController(IRepository<User> userRepository, 
+            IUserMapper userMapper,
+            AppOptions options)
         {
             _repository = userRepository;
+            _userMapper = userMapper;
             // Using options is not required here - just to test the functionality
             _appOptions = options;
         }
@@ -56,7 +61,7 @@ namespace EssAdmin.WebHost.Controllers
         /// <param name="id">User identifier (GUID)</param>
         /// <returns></returns>
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<UserResponse>> GetUserAsync(Guid id)
+        public async Task<ActionResult<UserResponse>> GetUserByIdAsync(Guid id)
         {
             var user = await _repository.GetByIdAsync(id);
 
@@ -79,20 +84,11 @@ namespace EssAdmin.WebHost.Controllers
         /// <param name="request">User request to be created</param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<UserResponse>> CreateUserAsync(CreateAndEditUserRequest request)
+        public async Task<ActionResult<UserResponse>> CreateUserAsync(CreateOrEditUserRequest request)
         {
-            var user = new User()
-            {
-                RecordId = Guid.NewGuid(),
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Email = request.Email,
-                RecordStatus = 1
-            };
-
+            var user = _userMapper.MapFromModel(request);
             await _repository.AddAsync(user);
-
-            return CreatedAtAction(nameof(GetUserAsync), new { id = user.RecordId }, null);
+            return CreatedAtAction(nameof(GetUserByIdAsync), new { id = user.RecordId }, null);
         }
 
         /// <summary>
@@ -102,19 +98,14 @@ namespace EssAdmin.WebHost.Controllers
         /// <param name="request">User request to be updated</param>
         /// <returns></returns>
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> EditUserAsync(Guid id, CreateAndEditUserRequest request)
+        public async Task<IActionResult> EditUserAsync(Guid id, CreateOrEditUserRequest request)
         {
             var user = await _repository.GetByIdAsync(id);
             if (user == null) return NotFound();
 
-            user.FirstName = request.FirstName;
-            user.LastName = request.LastName;
-            user.Email = request.Email;
-            user.RecordStatus = request.RecordStatus;
-
+            user = _userMapper.MapFromModel(request, user);
             await _repository.UpdateAsync(user);
-
-            return NoContent();
+            return Ok();
         }
 
         /// <summary>
@@ -127,8 +118,9 @@ namespace EssAdmin.WebHost.Controllers
         {
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null) return NotFound();
+
             await _repository.DeleteAsync(entity);
-            return NoContent();
+            return Ok();
         }
     }
 }

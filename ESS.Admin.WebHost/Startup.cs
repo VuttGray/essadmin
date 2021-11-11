@@ -16,6 +16,7 @@ using ESS.Admin.DataAccess.Data;
 using ESS.Admin.DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 using ESS.Admin.DataAccess;
+using ESS.Admin.WebHost.Mappers;
 
 namespace ESS.Admin.WebHost
 {
@@ -38,6 +39,9 @@ namespace ESS.Admin.WebHost
 
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped<IDbInitializer, EfDbInitializer>();
+            services.AddScoped<IUserMapper, UserMapper>();
+            services.AddScoped<IMessageMapper, MessageMapper>();
+
             services.AddDbContext<DataContext>(x =>
             {
                 x.UseSqlite("Filename=EssDb.sqlite");

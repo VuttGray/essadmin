@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ESS.Admin.WebHost.Models
 {
-    public class CreateAndEditUserRequest
+    public class CreateOrEditUserRequest
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
