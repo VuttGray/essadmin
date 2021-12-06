@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using ESS.Admin.WebHost.Mappers;
 using ESS.Admin.WebHost.Models;
 using ESS.Admin.Core.Abstractions.Services;
+using AutoMapper;
+using ESS.Admin.Core.Domain.Administration;
 
 namespace ESS.Admin.WebHost.Controllers
 {
@@ -16,12 +17,12 @@ namespace ESS.Admin.WebHost.Controllers
     [Route("api/v1/[controller]")]
     public class MessagesController : ControllerBase
     {
-        private readonly IMessageMapper _messageMapper;
+        private readonly IMapper _mapper;
         private readonly IMessageService _messageService;
 
-        public MessagesController(IMessageMapper messageMapper, IMessageService messageService)
+        public MessagesController(IMapper mapper, IMessageService messageService)
         {
-            _messageMapper = messageMapper;
+            _mapper = mapper;
             _messageService = messageService;
         }
 
@@ -30,11 +31,11 @@ namespace ESS.Admin.WebHost.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<List<MessageResponse>>> GetMessagesAsync()
+        public async Task<ActionResult<List<MessageResponse>>> GetAsync()
         {
-            var messages = await _messageService.GetAllAsync();
-            var response = messages.Select(message => new MessageResponse(message)).ToList();
-            return Ok(response);
+            var values = await _messageService.GetAllAsync();
+            var models = _mapper.Map<List<Message>, List<MessageResponse>>(values.ToList());
+            return Ok(models);
         }
 
         /// <summary>
@@ -44,9 +45,9 @@ namespace ESS.Admin.WebHost.Controllers
         [HttpGet("/toSent")]
         public async Task<ActionResult<List<MessageResponse>>> GetMessagesToSendAsync()
         {
-            var messages = await _messageService.GetMessagesToSendAsync();
-            var response = messages.Select(message => new MessageResponse(message)).ToList();
-            return Ok(response);
+            var values = await _messageService.GetMessagesToSendAsync();
+            var models = _mapper.Map<List<Message>, List<MessageResponse>>(values.ToList());
+            return Ok(models);
         }
 
         /// <summary>
@@ -55,12 +56,12 @@ namespace ESS.Admin.WebHost.Controllers
         /// <param name="id">Message identifier (GUID)</param>
         /// <returns></returns>
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<MessageResponse>> GetMessageAsync(Guid id)
+        public async Task<ActionResult<MessageResponse>> GetByIdAsync(Guid id)
         {
-            var message = await _messageService.GetByIdAsync(id);
-            if (message == null) return NotFound();
-            var response = new MessageResponse(message);
-            return Ok(response);
+            var value = await _messageService.GetByIdAsync(id);
+            if (value == null) return NotFound();
+            var model = _mapper.Map<MessageResponse>(value);
+            return Ok(model);
         }
 
         /// <summary>
@@ -69,11 +70,11 @@ namespace ESS.Admin.WebHost.Controllers
         /// <param name="request">Message request to be created</param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<MessageResponse>> CreateMessageAsync(CreateMessageRequest request)
+        public async Task<ActionResult<MessageResponse>> CreateAsync(CreateMessageRequest request)
         {
-            var message = _messageMapper.MapFromModel(request);
+            var message = _mapper.Map<Message>(request);
             await _messageService.AddAsync(message);
-            return CreatedAtAction(nameof(GetMessageAsync), new { id = message.RecordId }, null);
+            return CreatedAtAction(nameof(GetByIdAsync), new { id = message.RecordId }, null);
         }
 
         /// <summary>
@@ -96,7 +97,7 @@ namespace ESS.Admin.WebHost.Controllers
         /// <param name="id">Message identifier (GUID)</param>
         /// <returns></returns>
         [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> DeleteMessageAsync(Guid id)
+        public async Task<IActionResult> DeleteAsync(Guid id)
         {
             var entity = await _messageService.GetByIdAsync(id);
             if (entity == null) return NotFound();

@@ -9,7 +9,8 @@ using ESS.Admin.DataAccess.Data;
 using ESS.Admin.DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 using ESS.Admin.DataAccess;
-using ESS.Admin.WebHost.Mappers;
+using AutoMapper;
+using ESS.Admin.WebHost.Mappings;
 
 namespace ESS.Admin.WebHost
 {
@@ -43,8 +44,9 @@ namespace ESS.Admin.WebHost
             });
 
             // Mapper
-            services.AddScoped<IUserMapper, UserMapper>();
-            services.AddScoped<IMessageMapper, MessageMapper>();
+            var mapperConfig = new MapperConfiguration(mc => { mc.AddProfile(new MappingProfile()); });
+            IMapper mapper = mapperConfig.CreateMapper();
+            services.AddSingleton(mapper);
 
             // Swagger
             services.AddOpenApiDocument(options =>
