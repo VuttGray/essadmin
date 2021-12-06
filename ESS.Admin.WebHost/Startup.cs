@@ -1,17 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using ESS.Admin.Core.Abstractions.Repositories;
-using ESS.Admin.Core.Domain.Administration;
 using ESS.Admin.DataAccess.Data;
 using ESS.Admin.DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -37,11 +30,11 @@ namespace ESS.Admin.WebHost
 
             services.AddControllers(options => options.SuppressAsyncSuffixInActionNames = false);
 
+            // Repository
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
             services.AddScoped<IDbInitializer, EfDbInitializer>();
-            services.AddScoped<IUserMapper, UserMapper>();
-            services.AddScoped<IMessageMapper, MessageMapper>();
 
+            // Database
             services.AddDbContext<DataContext>(x =>
             {
                 x.UseSqlite("Filename=EssDb.sqlite");
@@ -49,6 +42,11 @@ namespace ESS.Admin.WebHost
                 x.UseLazyLoadingProxies();
             });
 
+            // Mapper
+            services.AddScoped<IUserMapper, UserMapper>();
+            services.AddScoped<IMessageMapper, MessageMapper>();
+
+            // Swagger
             services.AddOpenApiDocument(options =>
             {
                 options.Title = "Email Sending Service Administration API Doc";
