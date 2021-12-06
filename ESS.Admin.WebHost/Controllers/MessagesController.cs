@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using ESS.Admin.Core.Abstractions.Repositories;
-using ESS.Admin.Core.Domain.Administration;
 using ESS.Admin.WebHost.Mappers;
 using ESS.Admin.WebHost.Models;
+using ESS.Admin.Core.Abstractions.Services;
 
 namespace ESS.Admin.WebHost.Controllers
 {
@@ -17,14 +16,13 @@ namespace ESS.Admin.WebHost.Controllers
     [Route("api/v1/[controller]")]
     public class MessagesController : ControllerBase
     {
-        private readonly IRepository<Message> _repository;
         private readonly IMessageMapper _messageMapper;
+        private readonly IMessageService _messageService;
 
-        public MessagesController(IRepository<Message> messagesRepository,
-            IMessageMapper messageMapper)
+        public MessagesController(IMessageMapper messageMapper, IMessageService messageService)
         {
-            _repository = messagesRepository;
             _messageMapper = messageMapper;
+            _messageService = messageService;
         }
 
         /// <summary>
@@ -34,19 +32,19 @@ namespace ESS.Admin.WebHost.Controllers
         [HttpGet]
         public async Task<ActionResult<List<MessageResponse>>> GetMessagesAsync()
         {
-            var messages = await _repository.GetAllAsync();
+            var messages = await _messageService.GetAllAsync();
             var response = messages.Select(message => new MessageResponse(message)).ToList();
             return Ok(response);
         }
 
         /// <summary>
-        /// Get active messages
+        /// Get messages to sent
         /// </summary>
         /// <returns></returns>
-        [HttpGet("/active")]
-        public async Task<ActionResult<List<MessageResponse>>> GetActiveMessagesAsync()
+        [HttpGet("/toSent")]
+        public async Task<ActionResult<List<MessageResponse>>> GetMessagesToSendAsync()
         {
-            var messages = await _repository.GetActiveAsync();
+            var messages = await _messageService.GetMessagesToSendAsync();
             var response = messages.Select(message => new MessageResponse(message)).ToList();
             return Ok(response);
         }
@@ -59,7 +57,7 @@ namespace ESS.Admin.WebHost.Controllers
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<MessageResponse>> GetMessageAsync(Guid id)
         {
-            var message = await _repository.GetByIdAsync(id);
+            var message = await _messageService.GetByIdAsync(id);
             if (message == null) return NotFound();
             var response = new MessageResponse(message);
             return Ok(response);
@@ -74,27 +72,21 @@ namespace ESS.Admin.WebHost.Controllers
         public async Task<ActionResult<MessageResponse>> CreateMessageAsync(CreateMessageRequest request)
         {
             var message = _messageMapper.MapFromModel(request);
-            await _repository.AddAsync(message);
+            await _messageService.AddAsync(message);
             return CreatedAtAction(nameof(GetMessageAsync), new { id = message.RecordId }, null);
         }
 
         /// <summary>
-        /// Update a message
+        /// Mark a message as sent
         /// </summary>
         /// <param name="id">Message identifier (GUID)</param>
-        /// <param name="request">Message request to be updated</param>
         /// <returns></returns>
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> EditMessageAsync(Guid id, EditMessageRequest request)
+        public async Task<IActionResult> MarkSentMessageAsync(Guid id, DateTime sentDate)
         {
-            var message = await _repository.GetByIdAsync(id);
-            if (message == null) return NotFound();
-
-            message.SentDate = request.SentDate;
-            message.Attempts = request.Attempts;
-
-            await _repository.UpdateAsync(message);
-
+            var entity = await _messageService.GetByIdAsync(id);
+            if (entity == null) return NotFound();
+            await _messageService.MarkSentAsync(entity, sentDate);
             return Ok();
         }
 
@@ -106,9 +98,9 @@ namespace ESS.Admin.WebHost.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteMessageAsync(Guid id)
         {
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await _messageService.GetByIdAsync(id);
             if (entity == null) return NotFound();
-            await _repository.DeleteAsync(entity);
+            await _messageService.DeleteAsync(entity);
             return Ok();
         }
     }

@@ -9,6 +9,7 @@ using ESS.Admin.WebHost;
 using ESS.Admin.WebHost.Mappers;
 using ESS.Admin.WebHost.Models;
 using Microsoft.Extensions.Options;
+using ESS.Admin.Core.Abstractions.Services;
 
 namespace EssAdmin.WebHost.Controllers
 {
@@ -19,17 +20,14 @@ namespace EssAdmin.WebHost.Controllers
     [Route("api/v1/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly IRepository<User> _repository;
         private readonly IUserMapper _userMapper;
+        private readonly IUserService _userService;
         private readonly AppOptions _appOptions;
 
-        public UsersController(IRepository<User> userRepository, 
-            IUserMapper userMapper,
-            AppOptions options)
+        public UsersController(IUserMapper userMapper, IUserService userService, AppOptions options)
         {
-            _repository = userRepository;
             _userMapper = userMapper;
-            // Using options is not required here - just to test the functionality
+            _userService = userService;
             _appOptions = options;
         }
         
@@ -40,7 +38,7 @@ namespace EssAdmin.WebHost.Controllers
         [HttpGet]
         public async Task<List<UserShortResponse>> GetUsersAsync()
         {
-            var users = await _repository.GetAllAsync();
+            var users = await _userService.GetAllAsync();
 
             var adminsModelList = users
                 .Where(u => !u.IsDeleted || _appOptions.ShowDeleted)
@@ -63,7 +61,7 @@ namespace EssAdmin.WebHost.Controllers
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<UserResponse>> GetUserByIdAsync(Guid id)
         {
-            var user = await _repository.GetByIdAsync(id);
+            var user = await _userService.GetByIdAsync(id);
 
             if (user == null)
                 return NotFound();
@@ -87,7 +85,7 @@ namespace EssAdmin.WebHost.Controllers
         public async Task<ActionResult<UserResponse>> CreateUserAsync(CreateOrEditUserRequest request)
         {
             var user = _userMapper.MapFromModel(request);
-            await _repository.AddAsync(user);
+            await _userService.AddAsync(user);
             return CreatedAtAction(nameof(GetUserByIdAsync), new { id = user.RecordId }, null);
         }
 
@@ -100,11 +98,25 @@ namespace EssAdmin.WebHost.Controllers
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> EditUserAsync(Guid id, CreateOrEditUserRequest request)
         {
-            var user = await _repository.GetByIdAsync(id);
+            var user = await _userService.GetByIdAsync(id);
             if (user == null) return NotFound();
 
             user = _userMapper.MapFromModel(request, user);
-            await _repository.UpdateAsync(user);
+            await _userService.UpdateAsync(user);
+            return Ok();
+        }
+
+        /// <summary>
+        /// Lock a user
+        /// </summary>
+        /// <param name="id">User identifier (GUID)</param>
+        /// <returns></returns>
+        [HttpPut("/lock/{id:guid}")]
+        public async Task<IActionResult> LockUserAsync(Guid id)
+        {
+            var user = await _userService.GetByIdAsync(id);
+            if (user == null) return NotFound();
+            await _userService.LockAsync(user);
             return Ok();
         }
 
@@ -116,10 +128,10 @@ namespace EssAdmin.WebHost.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteUserAsync(Guid id)
         {
-            var entity = await _repository.GetByIdAsync(id);
+            var entity = await _userService.GetByIdAsync(id);
             if (entity == null) return NotFound();
 
-            await _repository.DeleteAsync(entity);
+            await _userService.DeleteAsync(entity);
             return Ok();
         }
     }

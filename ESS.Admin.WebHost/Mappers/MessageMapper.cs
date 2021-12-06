@@ -13,13 +13,8 @@ namespace ESS.Admin.WebHost.Mappers
         {
             if (message == null)
             {
-                message = new Message() { RecordId = Guid.NewGuid() };
+                message = new Message(Guid.NewGuid(), model.Subject, model.Body);
             }
-
-            message.Subject = model.Subject;
-            message.Body = model.Body;
-            message.CreatedDate = DateTime.Now;
-            message.Attempts = 0;
 
             return message;
         }

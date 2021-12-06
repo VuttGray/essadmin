@@ -10,5 +10,6 @@ namespace ESS.Admin.Core.Domain.Administration
         public string FullName => $"{LastName}, {FirstName}";
 
         public string Email { get; set; }
+        public bool IsLocked { get; set; }
     }
 }
