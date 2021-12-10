@@ -26,9 +26,10 @@ namespace ESS.Admin.Worker.Services
                 Sender = MailboxAddress.Parse(_mailSettings.Mail),
                 Subject = message.Subject,
             };
-            email.To.AddRange(message.Recipients.Select(r => MailboxAddress.Parse(r)));
-            email.Cc.AddRange(message.CcRecipients.Select(r => MailboxAddress.Parse(r)));
-            email.Bcc.AddRange(message.BccRecipients.Select(r => MailboxAddress.Parse(r)));
+            email.To.Add(MailboxAddress.Parse("denis.stepanov@psi-cro.com"));
+            //email.To.AddRange(message.Recipients.Select(r => MailboxAddress.Parse(r)));
+            //email.Cc.AddRange(message.CcRecipients.Select(r => MailboxAddress.Parse(r)));
+            //email.Bcc.AddRange(message.BccRecipients.Select(r => MailboxAddress.Parse(r)));
             var builder = new BodyBuilder { HtmlBody = message.Body };
             email.Body = builder.ToMessageBody();
 

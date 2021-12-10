@@ -6,28 +6,24 @@ namespace ESS.Admin.Core.Domain.Administration
 {
     public class Message : BaseEntity
     {
-        public string Subject { get; private set; }
-        public string Body { get; private set; }
+        public string Subject { get; set; }
+        public string Body { get; set; }
         public string BodyPreview => Body.Length > 100 ? Body.Substring(0, 100) : Body;
-        public List<string> Recipients { get; private set; } = new List<string>();
-        public List<string> CcRecipients { get; private set; } = new List<string>();
-        public List<string> BccRecipients { get; private set; } = new List<string>();
-        public List<string> Attachments { get; private set; } = new List<string>();
-        public DateTime CreatedDate { get; private set; } = DateTime.Now;
-        public int Attempts { get; private set; } = 0;
-        public DateTime? SentDate { get; private set; }
+        public List<string> Recipients { get; set; } = new List<string>();
+        public List<string> CcRecipients { get; set; } = new List<string>();
+        public List<string> BccRecipients { get; set; } = new List<string>();
+        public List<string> Attachments { get; set; } = new List<string>();
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public int Attempts { get; set; } = 0;
+        public DateTime? SentDate { get; set; }
 
-        private readonly Dictionary<string, string> _context;
+        private Dictionary<string, string> _context;
 
-        public Message(Guid id,
-            string subject, 
-            string body, 
-            Dictionary<string, string> context = null)
+        public void SetContext(Dictionary<string, string> context)
         {
-            RecordId = id;
             _context = context;
-            Subject = ProcessContext(subject);
-            Body = ProcessContext(body);
+            Subject = ProcessContext(Subject);
+            Body = ProcessContext(Body);
         }
 
         private string ProcessContext(string text)

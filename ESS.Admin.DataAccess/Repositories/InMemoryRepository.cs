@@ -50,5 +50,10 @@ namespace ESS.Admin.DataAccess.Repositories
         {
             throw new NotImplementedException();
         }
+
+        public Task<T> GetFirstOrDefaultAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

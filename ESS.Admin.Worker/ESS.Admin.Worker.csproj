@@ -13,5 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ESS.Admin.Core\ESS.Admin.Core.csproj" />
+    <ProjectReference Include="..\ESS.Admin.DataAccess\ESS.Admin.DataAccess.csproj" />
   </ItemGroup>
 </Project>

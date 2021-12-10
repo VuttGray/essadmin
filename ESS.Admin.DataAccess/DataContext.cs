@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace ESS.Admin.DataAccess
@@ -17,9 +18,21 @@ namespace ESS.Admin.DataAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>()
-                .HasKey(bc => new { bc.RecordId });
+                .HasKey(e => new { e.RecordId });
             modelBuilder.Entity<Message>()
-                .HasKey(bc => new { bc.RecordId });
+                .HasKey(e => new { e.RecordId });
+            modelBuilder.Entity<Message>()
+                .Property(e => e.Recipients)
+                .HasConversion(v => string.Join(";", v), v => v.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList());
+            modelBuilder.Entity<Message>()
+                .Property(e => e.CcRecipients)
+                .HasConversion(v => string.Join(";", v), v => v.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList());
+            modelBuilder.Entity<Message>()
+                .Property(e => e.BccRecipients)
+                .HasConversion(v => string.Join(";", v), v => v.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList());
+            modelBuilder.Entity<Message>()
+                .Property(e => e.Attachments)
+                .HasConversion(v => string.Join(",", v), v => v.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList());
         }
     }
 }

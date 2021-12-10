@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using ESS.Admin.DataAccess;
 using AutoMapper;
 using ESS.Admin.WebHost.Mappings;
+using ESS.Admin.Core.Abstractions.Services;
+using ESS.Admin.Core.Application;
 
 namespace ESS.Admin.WebHost
 {
@@ -38,7 +40,7 @@ namespace ESS.Admin.WebHost
             // Database
             services.AddDbContext<DataContext>(x =>
             {
-                x.UseSqlite("Filename=EssDb.sqlite");
+                x.UseSqlite($"Filename={Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/source/dbs/EssDb.sqlite"}");
                 x.UseUpperSnakeCaseNamingConvention();
                 x.UseLazyLoadingProxies();
             });
@@ -47,6 +49,9 @@ namespace ESS.Admin.WebHost
             var mapperConfig = new MapperConfiguration(mc => { mc.AddProfile(new MappingProfile()); });
             IMapper mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);
+
+            // Services
+            services.AddScoped<IMessageService, MessageService>();
 
             // Swagger
             services.AddOpenApiDocument(options =>
