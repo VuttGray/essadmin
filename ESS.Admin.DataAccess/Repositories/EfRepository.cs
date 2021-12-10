@@ -48,6 +48,12 @@ namespace ESS.Admin.DataAccess.Repositories
             return entity;
         }
 
+        public async Task<T> GetFirstOrDefaultAsync()
+        {
+            var entity = await _dataContext.Set<T>().FirstOrDefaultAsync(x => x.RecordStatus == 1);
+            return entity;
+        }
+
         public async Task<IEnumerable<T>> GetRangeByIdsAsync(List<Guid> ids)
         {
             var entities = await _dataContext.Set<T>().Where(x => ids.Contains(x.RecordId)).ToListAsync();

@@ -10,6 +10,7 @@ namespace ESS.Admin.Core.Abstractions.Repositories
         Task<IEnumerable<T>> GetAllAsync();
         Task<IEnumerable<T>> GetActiveAsync();
         Task<T> GetByIdAsync(Guid id);
+        Task<T> GetFirstOrDefaultAsync();
         Task<IEnumerable<T>> GetRangeByIdsAsync(List<Guid> ids);
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
