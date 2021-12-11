@@ -1,21 +1,24 @@
-﻿using ESS.Admin.Core.Domain.Administration;
+﻿using ESS.Admin.Core.Abstractions.Repositories;
+using ESS.Admin.Core.Application;
+using ESS.Admin.Core.Domain.Administration;
 using ESS.Admin.Worker.Settings;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace ESS.Admin.Worker.Services
 {
-    public class EmailService : IEmailService
+    public class EmailService : MessageService, IEmailService
     {
         private readonly MailSettings _mailSettings;
 
-        public EmailService(IOptions<MailSettings> mailSettings)
+        public EmailService(MailSettings mailSettings, IRepository<Message> repository) : base(repository)
         {
-            _mailSettings = mailSettings.Value;
+            _mailSettings = mailSettings;
         }
 
         public async Task SendAsync(Message message)
@@ -35,9 +38,10 @@ namespace ESS.Admin.Worker.Services
 
             // Send
             using var smtp = new SmtpClient();
-            smtp.Connect(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.StartTls);
-            smtp.Authenticate(_mailSettings.Mail, _mailSettings.Password);
+            smtp.Connect(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.None);
+            //smtp.Authenticate(_mailSettings.Mail, _mailSettings.Password);
             await smtp.SendAsync(email);
+            await MarkSentAsync(message, DateTime.Now);
             smtp.Disconnect(true);
         }
     }

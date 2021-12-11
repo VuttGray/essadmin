@@ -7,9 +7,12 @@ using ESS.Admin.DataAccess;
 using ESS.Admin.DataAccess.Data;
 using ESS.Admin.DataAccess.Repositories;
 using ESS.Admin.Worker.Services;
+using ESS.Admin.Worker.Settings;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace ESS.Admin.Worker
 {
@@ -33,7 +36,12 @@ namespace ESS.Admin.Worker
                     services.AddDbContext<DataContext>(x =>
                     {
                         x.UseSqlite($"Filename={Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/source/dbs/EssDb.sqlite"}");
+                        x.UseUpperSnakeCaseNamingConvention();
                     });
+
+                    IConfiguration configuration = hostContext.Configuration;
+                    MailSettings options = configuration.GetSection("EmailConf").Get<MailSettings>();
+                    services.AddSingleton(options);
 
                     services.AddHostedService<Worker>();
                 });

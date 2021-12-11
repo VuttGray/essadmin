@@ -78,6 +78,7 @@ namespace ESS.Admin.Core.Domain.Administration
         {
             IncrementAttempts();
             SentDate = sentDate;
+            RecordStatus = 3;
         }
 
         protected void AddRecipients(List<string> list, IEnumerable<string> recipients)

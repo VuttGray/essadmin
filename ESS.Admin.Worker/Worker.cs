@@ -16,18 +16,12 @@ namespace ESS.Admin.Worker
     {
         private readonly ILogger<Worker> _logger;
         private readonly IServiceProvider _serviceProvider;
-        private readonly IRepository<Message> _repository;
-        private readonly IEmailService _emailService;
 
         public Worker(ILogger<Worker> logger, 
-            IServiceProvider serviceProvider,
-            IRepository<Message> repository,
-            IEmailService emailService)
+            IServiceProvider serviceProvider)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
-            _repository = repository;
-            _emailService = emailService;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -35,20 +29,22 @@ namespace ESS.Admin.Worker
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                await SendMessages();
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
+                    await SendMessages(emailService);
+                }
                 await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }
         }
 
-        private async Task SendMessages()
+        private async Task SendMessages(IEmailService emailService)
         {
-            using var scope = _serviceProvider.CreateScope();
-
             while(true)
             {
-                var message = await _repository.GetFirstOrDefaultAsync();
+                var message = await emailService.GetFirstOrDefaultAsync();
                 if (message == null) break;
-                await _emailService.SendAsync(message);
+                await emailService.SendAsync(message);
             }
         }
     }
