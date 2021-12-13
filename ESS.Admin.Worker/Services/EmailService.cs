@@ -29,17 +29,22 @@ namespace ESS.Admin.Worker.Services
                 Sender = MailboxAddress.Parse(_mailSettings.Mail),
                 Subject = message.Subject,
             };
-            email.To.Add(MailboxAddress.Parse("denis.stepanov@psi-cro.com"));
-            //email.To.AddRange(message.Recipients.Select(r => MailboxAddress.Parse(r)));
-            //email.Cc.AddRange(message.CcRecipients.Select(r => MailboxAddress.Parse(r)));
-            //email.Bcc.AddRange(message.BccRecipients.Select(r => MailboxAddress.Parse(r)));
+            if (message.Recipients != null && message.Recipients.Count > 0)
+            {
+                email.To.AddRange(message.Recipients.Select(r => MailboxAddress.Parse(r)));
+                email.Cc.AddRange(message.CcRecipients.Select(r => MailboxAddress.Parse(r)));
+                email.Bcc.AddRange(message.BccRecipients.Select(r => MailboxAddress.Parse(r)));
+            }
+            else
+            {
+                email.To.Add(MailboxAddress.Parse(_mailSettings.DefaultRecipient));
+            }
             var builder = new BodyBuilder { HtmlBody = message.Body };
             email.Body = builder.ToMessageBody();
 
             // Send
             using var smtp = new SmtpClient();
             smtp.Connect(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.None);
-            //smtp.Authenticate(_mailSettings.Mail, _mailSettings.Password);
             await smtp.SendAsync(email);
             await MarkSentAsync(message, DateTime.Now);
             smtp.Disconnect(true);
