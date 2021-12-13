@@ -4,6 +4,13 @@ using System.Linq;
 
 namespace ESS.Admin.Core.Domain.Administration
 {
+    public enum MessagePriority
+    {
+        Low = 0,
+        Normal = 1,
+        High = 2
+    }
+
     public class Message : BaseEntity
     {
         public string Subject { get; set; }
@@ -13,6 +20,7 @@ namespace ESS.Admin.Core.Domain.Administration
         public List<string> CcRecipients { get; set; } = new List<string>();
         public List<string> BccRecipients { get; set; } = new List<string>();
         public List<string> Attachments { get; set; } = new List<string>();
+        public int Priority { get; set; } = (int)MessagePriority.Normal;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public int Attempts { get; set; } = 0;
         public DateTime? SentDate { get; set; }
