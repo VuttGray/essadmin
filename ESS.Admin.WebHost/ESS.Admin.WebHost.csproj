@@ -3,11 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UserSecretsId>2f93a3c0-65c4-4c40-a495-30b94c7f9971</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="EssDb.sqlite" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
@@ -17,6 +15,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.13.2" />
   </ItemGroup>
 
@@ -24,6 +23,5 @@
     <ProjectReference Include="..\ESS.Admin.Core\ESS.Admin.Core.csproj" />
     <ProjectReference Include="..\ESS.Admin.DataAccess\ESS.Admin.DataAccess.csproj" />
   </ItemGroup>
-
 
 </Project>

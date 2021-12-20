@@ -1,0 +1,14 @@
+version: '3.4'
+
+services:
+  ess.admin.webhost:
+    image: ${DOCKER_REGISTRY-}essadminwebhost
+    build:
+      context: .
+      dockerfile: ESS.Admin.WebHost/Dockerfile
+
+  ess.admin.worker:
+    image: ${DOCKER_REGISTRY-}essadminworker
+    build:
+      context: .
+      dockerfile: ESS.Admin.Worker/Dockerfile

@@ -40,7 +40,7 @@ namespace ESS.Admin.WebHost
             // Database
             services.AddDbContext<DataContext>(x =>
             {
-                x.UseSqlite($"Filename={Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "/source/dbs/EssDb.sqlite"}");
+                x.UseSqlServer(appOptions.ConnectionString);
                 x.UseUpperSnakeCaseNamingConvention();
                 x.UseLazyLoadingProxies();
             });
