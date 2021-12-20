@@ -17,6 +17,8 @@ namespace ESS.Admin.DataAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasDefaultSchema("ess");
+
             modelBuilder.Entity<User>()
                 .HasKey(e => new { e.RecordId });
             modelBuilder.Entity<Message>()
