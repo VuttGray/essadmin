@@ -1,11 +1,11 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/dotnet/core/runtime:3.1-buster-slim AS base
+FROM mcr.microsoft.com/dotnet/core/runtime:3.1-bionic AS base
 WORKDIR /app
-EXPOSE 80
-EXPOSE 443
+EXPOSE 5002
+EXPOSE 5003
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-bionic AS build
 WORKDIR /src
 COPY ["ESS.Admin.Worker/ESS.Admin.Worker.csproj", "ESS.Admin.Worker/"]
 COPY ["ESS.Admin.DataAccess/ESS.Admin.DataAccess.csproj", "ESS.Admin.DataAccess/"]
