@@ -1,5 +1,5 @@
 ﻿using ESS.Admin.Core.Abstractions.Repositories;
-using ESS.Admin.Core.Application;
+using ESS.Admin.Core.Application.Services;
 using ESS.Admin.Core.Domain.Administration;
 using ESS.Admin.Worker.Settings;
 using MailKit.Net.Smtp;

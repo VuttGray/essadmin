@@ -3,8 +3,7 @@
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
-    <ProjectGuid>566c8948-9db9-4b36-9a24-1785ff66e8ba</ProjectGuid>
-    <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
+    <ProjectGuid>433a2130-a852-431a-b638-d46da0bfe7e4</ProjectGuid>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/{Scheme}://{ServiceHost}:{ServicePort}/swagger/index.html</DockerServiceUrl>
     <DockerServiceName>ess.admin.webhost</DockerServiceName>
   </PropertyGroup>
