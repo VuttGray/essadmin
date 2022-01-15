@@ -15,7 +15,7 @@ namespace ESS.Admin.Core.Domain.Administration
     {
         public string Subject { get; set; }
         public string Body { get; set; }
-        public string BodyPreview => Body.Length > 100 ? Body.Substring(0, 100) : Body;
+        public string BodyPreview => Body != null && Body.Length > 100 ? Body.Substring(0, 100) : Body;
         public List<string> Recipients { get; set; } = new List<string>();
         public List<string> CcRecipients { get; set; } = new List<string>();
         public List<string> BccRecipients { get; set; } = new List<string>();
@@ -25,26 +25,13 @@ namespace ESS.Admin.Core.Domain.Administration
         public int Attempts { get; set; } = 0;
         public DateTime? SentDate { get; set; }
 
-        private Dictionary<string, string> _context;
-
         public void SetContext(Dictionary<string, string> context)
         {
-            _context = context;
-            Subject = ProcessContext(Subject);
-            Body = ProcessContext(Body);
-        }
-
-        private string ProcessContext(string text)
-        {
-            if (!text.Contains("$") || _context == null) return text;
-
-            // Sort by length desc to avoid replacing part of a key with another shorter key: $KEY instead of $KEY_OTHER
-            var keys = _context.Keys.OrderByDescending(x => x.Length);  
-            foreach (string key in keys)
-            {
-                text = text.Replace($"${key}", _context[key]).Replace(";", "").Replace(",", "").Trim();
-            }
-            return text;
+            Subject = ProcessContext(Subject, context);
+            Body = ProcessContext(Body, context);
+            Recipients = Recipients.Select(r => ProcessContext(r, context)).ToList();
+            CcRecipients = CcRecipients.Select(r => ProcessContext(r, context)).ToList();
+            BccRecipients = BccRecipients.Select(r => ProcessContext(r, context)).ToList();
         }
 
         public void AddRecipients(string recipients)
@@ -93,10 +80,22 @@ namespace ESS.Admin.Core.Domain.Administration
         {
             foreach (var recipient in recipients)
             {
-                var processed_recipient = ProcessContext(recipient);
-                if (string.IsNullOrEmpty(processed_recipient)) continue;
-                if (!list.Contains(processed_recipient)) list.Add(processed_recipient);
+                if (string.IsNullOrEmpty(recipient)) continue;
+                if (!list.Contains(recipient)) list.Add(recipient);
             }
+        }
+
+        protected string ProcessContext(string text, Dictionary<string, string> context)
+        {
+            if (!text.Contains("$") || context == null) return text;
+
+            // Sort by length desc to avoid replacing part of a key with another shorter key: $KEY instead of $KEY_OTHER
+            var keys = context.Keys.OrderByDescending(x => x.Length);
+            foreach (string key in keys)
+            {
+                text = text.Replace($"${key}", context[key]);
+            }
+            return text;
         }
     }
 }

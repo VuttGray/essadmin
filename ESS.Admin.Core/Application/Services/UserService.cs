@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ESS.Admin.Core.Application
+namespace ESS.Admin.Core.Application.Services
 {
     public class UserService : BaseService<User>, IUserService
     {

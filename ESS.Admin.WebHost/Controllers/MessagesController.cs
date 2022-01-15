@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ESS.Admin.WebHost.Models;
 using ESS.Admin.Core.Abstractions.Services;
+using ESS.Admin.Core.Application.Exceptions;
 using AutoMapper;
 using ESS.Admin.Core.Domain.Administration;
 
@@ -58,10 +59,13 @@ namespace ESS.Admin.WebHost.Controllers
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<MessageResponse>> GetByIdAsync(Guid id)
         {
-            var value = await _messageService.GetByIdAsync(id);
-            if (value == null) return NotFound();
-            var model = _mapper.Map<MessageResponse>(value);
-            return Ok(model);
+            try
+            {
+                var value = await _messageService.GetByIdAsync(id);
+                var model = _mapper.Map<MessageResponse>(value);
+                return Ok(model);
+            }
+            catch (EntityNotFoundException) { return NotFound(); }
         }
 
         /// <summary>
@@ -72,9 +76,14 @@ namespace ESS.Admin.WebHost.Controllers
         [HttpPost]
         public async Task<ActionResult<MessageResponse>> CreateAsync(CreateMessageRequest request)
         {
-            var message = _mapper.Map<Message>(request);
-            await _messageService.AddAsync(message);
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = message.RecordId }, null);
+            try
+            {
+                var message = _mapper.Map<Message>(request);
+                await _messageService.AddAsync(message);
+                return CreatedAtAction(nameof(GetByIdAsync), new { id = message.RecordId }, null);
+            }
+            catch (EntityNotFoundException) { return NotFound(); }
+            catch (EntityBadOperationException ex) { return BadRequest(ex.Message); }
         }
 
         /// <summary>
@@ -85,10 +94,14 @@ namespace ESS.Admin.WebHost.Controllers
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> MarkSentMessageAsync(Guid id, DateTime sentDate)
         {
-            var entity = await _messageService.GetByIdAsync(id);
-            if (entity == null) return NotFound();
-            await _messageService.MarkSentAsync(entity, sentDate);
-            return Ok();
+            try
+            {
+                var entity = await _messageService.GetByIdAsync(id);
+                await _messageService.MarkSentAsync(entity, sentDate);
+                return Ok();
+            }
+            catch (EntityNotFoundException) { return NotFound(); }
+            catch (EntityBadOperationException ex) { return BadRequest(ex.Message); }
         }
 
         /// <summary>
@@ -99,10 +112,14 @@ namespace ESS.Admin.WebHost.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteAsync(Guid id)
         {
-            var entity = await _messageService.GetByIdAsync(id);
-            if (entity == null) return NotFound();
-            await _messageService.DeleteAsync(entity);
-            return Ok();
+            try
+            {
+                var entity = await _messageService.GetByIdAsync(id);
+                await _messageService.DeleteAsync(entity);
+                return Ok();
+            }
+            catch (EntityNotFoundException) { return NotFound(); }
+            catch (EntityBadOperationException ex) { return BadRequest(ex.Message); }
         }
     }
 }

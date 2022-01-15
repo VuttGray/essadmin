@@ -12,7 +12,7 @@ using ESS.Admin.DataAccess;
 using AutoMapper;
 using ESS.Admin.WebHost.Mappings;
 using ESS.Admin.Core.Abstractions.Services;
-using ESS.Admin.Core.Application;
+using ESS.Admin.Core.Application.Services;
 
 namespace ESS.Admin.WebHost
 {
