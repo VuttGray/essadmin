@@ -1,19 +1,22 @@
-using AutoMapper;
 using ESS.Admin.Core.Abstractions.Repositories;
 using ESS.Admin.Core.Abstractions.Services;
 using ESS.Admin.Core.Application.Services;
 using ESS.Admin.DataAccess;
 using ESS.Admin.DataAccess.Data;
 using ESS.Admin.DataAccess.Repositories;
-using ESS.Admin.WebHost.Mappings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace ESS.Admin.WebHost
+namespace ESS.Admin.UI
 {
     public class Startup
     {
@@ -24,13 +27,15 @@ namespace ESS.Admin.WebHost
 
         public IConfiguration Configuration { get; }
 
+        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             var appOptions = Configuration.Get<AppOptions>();
             services.AddSingleton(appOptions);
             services.Configure<AppOptions>(Configuration);
 
-            services.AddControllers(options => options.SuppressAsyncSuffixInActionNames = false);
+            services.AddRazorPages();
+            services.AddServerSideBlazor();
 
             // Repository
             services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
@@ -44,22 +49,11 @@ namespace ESS.Admin.WebHost
                 x.UseLazyLoadingProxies();
             });
 
-            // Mapper
-            var mapperConfig = new MapperConfiguration(mc => { mc.AddProfile(new MappingProfile()); });
-            IMapper mapper = mapperConfig.CreateMapper();
-            services.AddSingleton(mapper);
-
             // Services
             services.AddScoped<IMessageService, MessageService>();
-
-            // Swagger
-            services.AddOpenApiDocument(options =>
-            {
-                options.Title = "Email Sending Service Administration API Doc";
-                options.Version = "1.0";
-            });
         }
 
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IDbInitializer dbInitializer)
         {
             if (env.IsDevelopment())
@@ -68,19 +62,24 @@ namespace ESS.Admin.WebHost
             }
             else
             {
+                app.UseExceptionHandler("/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
-            app.UseOpenApi();
-            app.UseSwaggerUi3(x => { x.DocExpansion = "list"; });
-            app.UseReDoc(x => x.Path = "/redoc");
-
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
             app.UseRouting();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
-         
+            //app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapRazorPages();
+                endpoints.MapBlazorHub();
+            });
+
             dbInitializer.InitializeDb();
         }
     }

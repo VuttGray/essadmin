@@ -1,0 +1,9 @@
+﻿@page
+@using ESS.Admin.UI.Components
+@model ESS.Admin.UI.Pages.Message.IndexModel
+@{
+}
+
+@(await Html.RenderComponentAsync<MessagesGrid>(RenderMode.ServerPrerendered))
+
+<script src="_framework/blazor.server.js"></script>

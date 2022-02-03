@@ -17,8 +17,6 @@ namespace ESS.Admin.Core.Application.Services
         {
             var entity = await _repository.GetByIdAsync(id);
             if (entity == null) throw new EntityNotFoundException("Message", id.ToString());
-            if (entity.SentDate != null) throw new EntityBadOperationException("Message", id.ToString(), "is already sent (sent date is filled)");
-            if (entity.RecordStatus == 3) throw new EntityBadOperationException("Message", id.ToString(), "status is already sent");
 
             return entity;
         }
@@ -27,6 +25,12 @@ namespace ESS.Admin.Core.Application.Services
         {
             var entities = await _repository.GetActiveAsync();
             return entities;
+        }
+
+        public void CheckToSend(Message message)
+        {
+            if (message.SentDate != null) throw new EntityBadOperationException("Message", message.RecordId.ToString(), "is already sent (sent date is filled)");
+            if (message.RecordStatus == 3) throw new EntityBadOperationException("Message", message.RecordId.ToString(), "status is already sent");
         }
 
         public async Task MarkSentAsync(Message message, DateTime sentDate)

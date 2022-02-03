@@ -1,0 +1,99 @@
+﻿@page "/on-init"
+@using Microsoft.AspNetCore.Components.Web
+@using ESS.Admin.Core.Domain.Administration
+@using ESS.Admin.Core.Abstractions.Services
+@inject IMessageService MessageService
+
+<h3>Messages list</h3>
+
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th scope="col">To</th>
+            <th scope="col">Subject</th>
+            <th scope="col">Created at</th>
+            <th scope="col">Status</th>
+            <th scope="col">Sent at</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var record in Messages)
+        {
+            <tr>
+                <td>@record.RecipientsList</td>
+                <td>@record.Subject</td>
+                <td>@record.CreatedDate</td>
+                <td>@record.RecordStatus</td>
+                <td>@record.SentDate</td>
+                <td>
+                    <small class="text-muted">
+                        <button type="button" class="btn btn-primary" @onclick="(e => SelectRecordAsync(record.RecordId))"
+                                data-toggle="modal" data-target="#recordModal">
+                            More
+                        </button>
+                    </small>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="modal fade" id="recordModal" tabindex="-1" role="dialog" aria-labelledby="recordTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="recordTitle">@selectedRecord?.Subject</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @if (selectedRecord != null)
+            {
+                <div class="modal-body">
+                    <p>@selectedRecord.RecipientsList</p>
+                    <p>@selectedRecord.CcRecipientsList</p>
+                    <p>@selectedRecord.BccRecipientsList</p>
+                    <p>@selectedRecord.Body</p>
+                    <p>@selectedRecord.CreatedDate</p>
+                    <p>@selectedRecord.Attempts</p>
+                    <p>@selectedRecord.SentDate</p>
+                </div>
+            }
+            else
+            {
+                <div class="modal-body">
+                    <p>No data</p>
+                </div>
+            }
+            @*<div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+        </div>*@
+        </div>
+    </div>
+</div>
+
+@code {
+    string NoSelectedRecordSubject = "No selected record";
+    Guid selectedRecordId;
+    Message selectedRecord;
+    IEnumerable<Message> Messages = new List<Message>();
+
+    private bool shouldRender;
+
+    protected override bool ShouldRender() => shouldRender;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Messages = await MessageService.GetAllAsync();
+
+        shouldRender = true;
+    }
+
+    async void SelectRecordAsync(Guid recordId)
+    {
+        selectedRecordId = recordId;
+        selectedRecord = await MessageService.GetByIdAsync(recordId);
+    }
+}

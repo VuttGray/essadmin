@@ -17,8 +17,11 @@ namespace ESS.Admin.Core.Domain.Administration
         public string Body { get; set; }
         public string BodyPreview => Body != null && Body.Length > 100 ? Body.Substring(0, 100) : Body;
         public List<string> Recipients { get; set; } = new List<string>();
+        public string RecipientsList => string.Join("; ", Recipients);
         public List<string> CcRecipients { get; set; } = new List<string>();
+        public string CcRecipientsList => string.Join("; ", CcRecipients);
         public List<string> BccRecipients { get; set; } = new List<string>();
+        public string BccRecipientsList => string.Join("; ", BccRecipients);
         public List<string> Attachments { get; set; } = new List<string>();
         public int Priority { get; set; } = (int)MessagePriority.Normal;
         public DateTime CreatedDate { get; set; } = DateTime.Now;

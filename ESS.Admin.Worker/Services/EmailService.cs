@@ -42,6 +42,7 @@ namespace ESS.Admin.Worker.Services
             var builder = new BodyBuilder { HtmlBody = message.Body };
             email.Body = builder.ToMessageBody();
 
+            CheckToSend(message);
             // Send
             using var smtp = new SmtpClient();
             smtp.Connect(_mailSettings.Host, _mailSettings.Port, SecureSocketOptions.None);
