@@ -1,10 +1,7 @@
-﻿@page "/messages"
-
-@using ESS.Admin.Core.Domain.Administration
+﻿@using ESS.Admin.Core.Domain.Administration
 @using ESS.Admin.Core.Abstractions.Services
 @inject IMessageService MessageService
 @inject IJSRuntime  JS
-@inject NavigationManager NavManager
 @implements IDisposable
 
 @if (DataSource == null)
@@ -29,7 +26,7 @@ else
                     @{
                         var message = (context.DataItem as Message);
                     }
-                    <button class="btn btn-link grid-btn-link" @onclick="() => GotoDetailsView(message.RecordId)">@(message?.Subject ?? "...")</button>
+                    <button class="btn btn-link grid-btn-link" @onclick="() => GotoInfoView.InvokeAsync(message)">@(message?.Subject ?? "...")</button>
                 </CellDisplayTemplate>
                 </DxGridDataColumn>
                 <DxGridDataColumn FieldName="@nameof(Message.CreatedDate)" DisplayFormat="dd-MMM-yyyy HH:mm:ss">
@@ -64,7 +61,7 @@ else
     </DxContextMenu>
 }
 @code {
-    //[Parameter] public EventCallback<Message> GotoDetailsView { get; set; }
+    [Parameter] public EventCallback<Message> GotoInfoView { get; set; }
 
     IEnumerable<Message> DataSource { get; set; }
     DxGrid Grid;
@@ -106,11 +103,6 @@ else
     void OnItemClick(ContextMenuItemClickEventArgs args)
     {
         ClickedItem = args.ItemInfo.Text;
-    }
-
-    void GotoDetailsView(Guid recordId)
-    {
-        NavManager.NavigateTo($"/messages/{recordId}");
     }
 
     public void Dispose()

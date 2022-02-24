@@ -1,0 +1,18 @@
+﻿@page "/messages"
+@using ESS.Admin.Core.Domain.Administration
+
+@if(SelectedMessage != null) {
+    <MessageInfo GotoListView="@ShowMessageList" SelectedMessage="@SelectedMessage" />
+} else {
+    <MessageGrid GotoInfoView="@ShowMessageInfo" />
+}
+
+@code {
+    Message? SelectedMessage { get; set; }
+    void ShowMessageInfo(Message issue) {
+        SelectedMessage = issue;
+    }
+    void ShowMessageList() {
+        SelectedMessage = null;
+    }
+}

@@ -1,0 +1,11 @@
+﻿@using ESS.Admin.Core.Domain.Administration
+
+@if (SelectedMessage != null)
+{
+    <h1>@SelectedMessage.Subject</h1>
+}
+
+@code {
+    [Parameter] public EventCallback GotoListView { get; set; }
+    [Parameter] public Message? SelectedMessage { get; set; }
+}
