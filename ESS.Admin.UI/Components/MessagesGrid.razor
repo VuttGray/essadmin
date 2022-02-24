@@ -39,43 +39,35 @@
     </tbody>
 </table>
 
-<div class="modal fade" id="recordModal" tabindex="-1" role="dialog" aria-labelledby="recordTitle" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="recordTitle">@selectedRecord?.Subject</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+@if (selectedRecord != null)
+{
+    <div class="modal fade" id="recordModal" tabindex="-1" role="dialog" aria-labelledby="recordTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="recordTitle">@selectedRecord?.Subject</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                    <div class="modal-body">
+                        <p>@selectedRecord.RecipientsList</p>
+                        <p>@selectedRecord.CcRecipientsList</p>
+                        <p>@selectedRecord.BccRecipientsList</p>
+                        <p>@selectedRecord.Body</p>
+                        <p>@selectedRecord.CreatedDate</p>
+                        <p>@selectedRecord.Attempts</p>
+                        <p>@selectedRecord.SentDate</p>
+                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Resend</button>
+                </div>
             </div>
-            @if (selectedRecord != null)
-            {
-                <div class="modal-body">
-                    <p>@selectedRecord.RecipientsList</p>
-                    <p>@selectedRecord.CcRecipientsList</p>
-                    <p>@selectedRecord.BccRecipientsList</p>
-                    <p>@selectedRecord.Body</p>
-                    <p>@selectedRecord.CreatedDate</p>
-                    <p>@selectedRecord.Attempts</p>
-                    <p>@selectedRecord.SentDate</p>
-                </div>
-            }
-            else
-            {
-                <div class="modal-body">
-                    <p>No data</p>
-                </div>
-            }
-            @*<div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-        </div>*@
         </div>
     </div>
-</div>
+}
 
 @code {
-    string NoSelectedRecordSubject = "No selected record";
     Guid selectedRecordId;
     Message selectedRecord;
     IEnumerable<Message> Messages = new List<Message>();
@@ -87,7 +79,6 @@
     protected override async Task OnInitializedAsync()
     {
         Messages = await MessageService.GetAllAsync();
-
         shouldRender = true;
     }
 

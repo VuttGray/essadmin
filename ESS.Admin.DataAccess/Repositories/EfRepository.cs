@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ESS.Admin.DataAccess.Repositories
@@ -30,7 +31,7 @@ namespace ESS.Admin.DataAccess.Repositories
             await _dataContext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<IEnumerable<T>> GetAllAsync(CancellationToken ct = default)
         {
             var entities = await _dataContext.Set<T>().ToListAsync();
             return entities;

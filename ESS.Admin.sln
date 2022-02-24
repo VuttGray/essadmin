@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30330.147
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ESS.Admin.WebHost", "ESS.Admin.WebHost\ESS.Admin.WebHost.csproj", "{40A89AB3-06AF-43F4-8CB9-2BE5197BB72C}"
 EndProject
@@ -15,7 +15,7 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ESS.UnitTests", "ESS.UnitTests\ESS.UnitTests.csproj", "{78736EE1-9B94-46C5-A493-590308FA6A5D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ESS.Admin.UI", "ESS.Admin.UI\ESS.Admin.UI.csproj", "{C592248E-3003-424D-BD79-A697A2B8E802}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ESS.Admin.UI", "ESS.Admin.UI\ESS.Admin.UI.csproj", "{C592248E-3003-424D-BD79-A697A2B8E802}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

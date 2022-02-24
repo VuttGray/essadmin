@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using ESS.Admin.Core.Abstractions.Repositories;
 using ESS.Admin.Core.Domain;
@@ -16,7 +17,7 @@ namespace ESS.Admin.DataAccess.Repositories
             Data = data;
         }
 
-        public Task<IEnumerable<T>> GetAllAsync()
+        public Task<IEnumerable<T>> GetAllAsync(CancellationToken ct = default)
         {
             return Task.FromResult(Data.AsEnumerable());
         }

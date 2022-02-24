@@ -3,6 +3,7 @@ using ESS.Admin.Core.Domain;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ESS.Admin.Core.Application.Services
@@ -32,9 +33,9 @@ namespace ESS.Admin.Core.Application.Services
             return await _repository.GetActiveAsync();
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public async Task<IEnumerable<T>> GetAllAsync(CancellationToken ct = default)
         {
-            return await _repository.GetAllAsync();
+            return await _repository.GetAllAsync(ct);
         }
 
         public async Task<T> GetByIdAsync(Guid id)
