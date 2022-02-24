@@ -1,0 +1,120 @@
+﻿@page "/messages"
+
+@using ESS.Admin.Core.Domain.Administration
+@using ESS.Admin.Core.Abstractions.Services
+@inject IMessageService MessageService
+@inject IJSRuntime  JS
+@inject NavigationManager NavManager
+@implements IDisposable
+
+@if (DataSource == null)
+{
+    <p>Data loading...</p>
+}
+else
+{
+    <p class="demo-text">Clicked item: <b>@(ClickedItem != null ? ClickedItem : "None")</b></p>
+    <div @oncontextmenu:preventDefault>
+        <DxGrid @ref="Grid"
+                Data="@DataSource" 
+                KeyFieldName="@nameof(Message.RecordId)"
+                SelectionMode="GridSelectionMode.Single"
+                AllowSort="true"
+                ShowFilterRow="true"
+                AllowSelectRowByClick="true"
+                CssClass="mw-1100 PsiGrid">
+            <Columns>
+                <DxGridDataColumn FieldName="@nameof(Message.Subject)">
+                    <CellDisplayTemplate>
+                    @{
+                        var message = (context.DataItem as Message);
+                    }
+                    <button class="btn btn-link grid-btn-link" @onclick="() => GotoDetailsView(message.RecordId)">@(message?.Subject ?? "...")</button>
+                </CellDisplayTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(Message.CreatedDate)" DisplayFormat="dd-MMM-yyyy HH:mm:ss">
+                    <FilterRowCellTemplate>
+                        <DxDateEdit Date="(DateTime?)context.FilterRowValue"
+                                    DateChanged="(DateTime? v) => context.FilterRowValue = v"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                    </FilterRowCellTemplate>
+                </DxGridDataColumn>
+                <DxGridDataColumn FieldName="@nameof(Message.RecipientsList)" Caption="To"/>
+                <DxGridDataColumn FieldName="@nameof(Message.RecordStatus)"/>
+                <DxGridDataColumn FieldName="@nameof(Message.SentDate)" DisplayFormat="dd-MMM-yyyy HH:mm:ss">
+                    <FilterRowCellTemplate>
+                        <DxDateEdit Date="(DateTime?)context.FilterRowValue"
+                                    DateChanged="(DateTime? v) => context.FilterRowValue = v"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto" />
+                    </FilterRowCellTemplate>
+                </DxGridDataColumn>
+            </Columns>
+        </DxGrid>
+    </div>
+    <DxContextMenu @ref="@ContextMenu" ItemClick="@OnItemClick">
+        <Items>
+            <DxContextMenuItem Name="SortBy" Text="Sort By">
+                <Items>
+                    <DxContextMenuItem Text="Name" />
+                    <DxContextMenuItem Text="Size" />
+                    <DxContextMenuItem Text="Type" />
+                </Items>
+            </DxContextMenuItem>
+        </Items>
+    </DxContextMenu>
+}
+@code {
+    //[Parameter] public EventCallback<Message> GotoDetailsView { get; set; }
+
+    IEnumerable<Message> DataSource { get; set; }
+    DxGrid Grid;
+    DxContextMenu ContextMenu;
+    DotNetObjectReference<MessageGrid>? objRef;
+    string RowType;
+    string ClickedItem;
+
+    protected override async Task OnInitializedAsync()
+    {
+        DataSource = await MessageService.GetAllAsync();
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        objRef = DotNetObjectReference.Create(this);
+        JS.InvokeVoidAsync("addContextMenuEvent", ".PsiGrid", objRef);
+
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    [JSInvokable]
+    public void ShowContextMenu(string rowType, double x, double y)
+    {
+        RowType = rowType;
+        ContextMenu.ShowAsync(x, y);
+    }
+
+    void OnRowClick(GridRowClickEventArgs args)
+    {
+        var selectedSubject = DataSource?.ToList()[args.VisibleIndex].Subject;
+    }
+
+    void OnGridContextMenu(MouseEventArgs e)
+    {
+
+    }
+
+    void OnItemClick(ContextMenuItemClickEventArgs args)
+    {
+        ClickedItem = args.ItemInfo.Text;
+    }
+
+    void GotoDetailsView(Guid recordId)
+    {
+        NavManager.NavigateTo($"/messages/{recordId}");
+    }
+
+    public void Dispose()
+    {
+        objRef?.Dispose();
+    }
+}

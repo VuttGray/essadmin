@@ -8,10 +8,33 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="~/" />
-    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/blazing-berry/bootstrap.min.css" />
     <link href="css/site.css" rel="stylesheet" />
     <link href="ESS.Admin.BSA.styles.css" rel="stylesheet" />
+    <link href="_content/DevExpress.Blazor/dx-blazor.css" rel="stylesheet" />
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+    <script>
+        var DotNetHelper;
+        function addContextMenuEvent(gridCssSelector, dotNetHelper) {
+            DotNetHelper = dotNetHelper;
+            var gridElem = document.querySelector(gridCssSelector);
+            gridElem.addEventListener("contextmenu", onContextMenuClick);
+        }
+        function onContextMenuClick(arg) {
+            arg.preventDefault();
+            var target = arg.target;
+            var rowType = IsHeaderRow(target) ? "header" : "data";
+            DotNetHelper.invokeMethodAsync('ShowContextMenu', rowType, arg.x, arg.y);
+        }
+        function IsHeaderRow(elem) {
+            if (elem.classList.contains("dxbs-grid-header-row"))
+                return true;
+            else if (elem.classList.contains("dxbs-grid-table"))
+                return false;
+            else
+                return IsHeaderRow(elem.parentElement);
+        }
+    </script>
 </head>
 <body>
     @RenderBody()
