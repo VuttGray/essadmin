@@ -1,0 +1,60 @@
+﻿@using ESS.Admin.Core.Domain.Administration
+
+<div class="card w-100">
+    <EditForm Model="@SelectedMessage"
+              OnValidSubmit="@HandleValidSubmit"
+              OnInvalidSubmit="@HandleInvalidSubmit"
+              Context="EditFormContext">
+        <DataAnnotationsValidator />
+        <div class="card-header" text-center py-3>
+            <h4>@nameof(Message)</h4>
+        </div>
+        <div class="card-body">
+            <DxFormLayout>
+                <DxFormLayoutItem ColSpanMd="12">
+                    <Template>
+                        <DxTextBox @bind-Text="@SelectedMessage.Subject"
+                                   NullText="Type subject..."
+                                   ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                   Enabled="false"/>
+                        <div class="text-danger">
+                            <ValidationMessage For="@(() => SelectedMessage.Subject)" />
+                        </div>
+                    </Template>
+                </DxFormLayoutItem>
+                <DxFormLayoutItem ColSpanMd="12">
+                    <Template>
+                        <DxDateEdit @bind-Date="@SelectedMessage.CreatedDate"
+                                    NullText="Date of message creation"
+                                    ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                                    Mask="dd-MMM-yyyy HH:mm:ss"
+                                    Enabled="false"/>
+                        <div class="text-danger">
+                            <ValidationMessage For="@(() => SelectedMessage.CreatedDate)" />
+                        </div>
+                    </Template>
+                </DxFormLayoutItem>
+            </DxFormLayout>
+        </div>
+    </EditForm>
+</div>
+
+<p class="tm-8 cw-480 mt-2">
+    @FormSubmitResult
+</p>
+
+<button class="btn btn-primary" @onclick="GotoListView">Close</button>
+
+@code {
+    [Parameter] public EventCallback GotoListView { get; set; }
+    [Parameter] public Message SelectedMessage { get; set; } = new();
+
+    string FormSubmitResult = "";
+
+    void HandleValidSubmit() {
+        FormSubmitResult = "Message has saved successfuly";
+    }
+    void HandleInvalidSubmit() {
+        FormSubmitResult = "";
+    }
+}

@@ -1,11 +1,62 @@
 ﻿@using ESS.Admin.Core.Domain.Administration
 
-@if (SelectedMessage != null)
-{
-    <h1>@SelectedMessage.Subject</h1>
-}
+<div class="card w-100">
+    <div class="card-header" text-center py-3>
+        <div class="row">
+            <div class="col-6">
+                <h4>@nameof(Message)</h4>
+            </div>
+            <div class="col-6 text-end">
+                <h5>@SelectedMessage.Priority</h5>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <p><b>ID: </b>@SelectedMessage.RecordId</p>
+        <p class="m-0"><b>Created at: </b>@SelectedMessage.CreatedDate.ToLongDateString()
+                                       @SelectedMessage.CreatedDate.ToLongTimeString()</p>
+        <p class="m-0"><b>Sent at: </b>@SelectedMessage.SentDate?.ToLongDateString()
+                                       @SelectedMessage.SentDate?.ToLongTimeString()</p>
+        <p><b>To: </b>@(string.IsNullOrWhiteSpace(SelectedMessage.RecipientsList) 
+            ? "Empty list of recipients" : SelectedMessage.RecipientsList)</p>
+        @if (SelectedMessage.CcRecipientsList.Length > 0)
+        {
+            <p><b>CC: </b>@SelectedMessage.CcRecipientsList</p>
+        }
+        @if (SelectedMessage.CcRecipientsList.Length > 0)
+        {
+            <p><b>BCC: </b>@SelectedMessage.BccRecipientsList</p>
+        }
+        <p class="m-0"><b>@SelectedMessage.Subject</b></p>
+        <hr />
+        <div class="border-1">@SelectedMessage.BodyPreview</div>
+    </div>
+    <div class="card-footer">
+       <p>@SelectedMessage.Attempts attemt(s)</p>
+    </div>
+</div>
+
+<p class="tm-8 cw-480 mt-2">
+    @FormSubmitResult
+</p>
+
+<button class="btn btn-primary" @onclick="GotoListView">Close</button>
+<button class="btn btn-secondary" @onclick="ResendMessage">Resend</button>
 
 @code {
     [Parameter] public EventCallback GotoListView { get; set; }
-    [Parameter] public Message? SelectedMessage { get; set; }
+    [Parameter] public Message SelectedMessage { get; set; } = new();
+
+    string FormSubmitResult = "";
+
+    void ResendMessage()
+    {
+        SelectedMessage.Reset();
+    }
+    void HandleValidSubmit() {
+        FormSubmitResult = "Message has saved successfuly";
+    }
+    void HandleInvalidSubmit() {
+        FormSubmitResult = "";
+    }
 }

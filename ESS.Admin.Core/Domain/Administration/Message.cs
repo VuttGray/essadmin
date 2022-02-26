@@ -23,7 +23,7 @@ namespace ESS.Admin.Core.Domain.Administration
         public List<string> BccRecipients { get; set; } = new List<string>();
         public string BccRecipientsList => string.Join("; ", BccRecipients);
         public List<string> Attachments { get; set; } = new List<string>();
-        public int Priority { get; set; } = (int)MessagePriority.Normal;
+        public MessagePriority Priority { get; set; } = MessagePriority.Normal;
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public int Attempts { get; set; } = 0;
         public DateTime? SentDate { get; set; }
@@ -77,6 +77,12 @@ namespace ESS.Admin.Core.Domain.Administration
             IncrementAttempts();
             SentDate = sentDate;
             RecordStatus = 3;
+        }
+
+        public void Reset()
+        {
+            SentDate = null;
+            RecordStatus = 1;
         }
 
         protected void AddRecipients(List<string> list, IEnumerable<string> recipients)
