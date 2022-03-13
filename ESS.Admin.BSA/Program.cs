@@ -1,4 +1,3 @@
-using ESS.Admin.BSA;
 using ESS.Admin.Core.Abstractions.Repositories;
 using ESS.Admin.Core.Abstractions.Services;
 using ESS.Admin.Core.Application.Services;
@@ -8,12 +7,16 @@ using ESS.Admin.DataAccess.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-var appOptions = builder.Configuration.Get<AppOptions>();
-builder.Services.AddSingleton(appOptions);
-builder.Services.Configure<AppOptions>(builder.Configuration);
+builder.Configuration
+    .SetBasePath(builder.Environment.ContentRootPath)
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables();
+
+// App model services
 builder.Services.AddScoped<IMessageService, MessageService>();
 
-// Add services to the container.
+// UI services
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddDevExpressBlazor();
@@ -25,7 +28,7 @@ builder.Services.AddScoped<IDbInitializer, EfDbInitializer>();
 // Database
 builder.Services.AddDbContextFactory<DataContext>(x =>
 {
-    x.UseSqlServer(appOptions.ConnectionString);
+    x.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString"));
     x.UseUpperSnakeCaseNamingConvention();
     x.UseLazyLoadingProxies();
 });
