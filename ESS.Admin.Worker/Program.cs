@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Telegram.Bot;
 
 namespace ESS.Admin.Worker
 {
@@ -33,7 +34,9 @@ namespace ESS.Admin.Worker
                     MailSettings options = configuration.GetSection("EmailConf").Get<MailSettings>();
                     services.AddSingleton(options);
                     var connectionString = configuration.GetSection("ConnectionString").Value;
+                    var tgClient = new TelegramBotClient(configuration.GetSection("TelegramBotToken").Value);
 
+                    services.AddSingleton(tgClient);
                     services.AddScoped<IEmailService, EmailService>();
                     services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
                     services.AddScoped<IDbInitializer, EfDbInitializer>();
