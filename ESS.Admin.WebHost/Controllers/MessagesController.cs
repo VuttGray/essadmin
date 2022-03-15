@@ -43,7 +43,7 @@ namespace ESS.Admin.WebHost.Controllers
         /// Get messages to sent
         /// </summary>
         /// <returns></returns>
-        [HttpGet("/toSent")]
+        [HttpGet("ToSent")]
         public async Task<ActionResult<List<MessageResponse>>> GetMessagesToSendAsync()
         {
             var values = await _messageService.GetMessagesToSendAsync();

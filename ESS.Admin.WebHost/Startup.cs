@@ -17,19 +17,15 @@ namespace ESS.Admin.WebHost
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
-
         public void ConfigureServices(IServiceCollection services)
         {
-            var appOptions = Configuration.Get<AppOptions>();
-            services.AddSingleton(appOptions);
-            services.Configure<AppOptions>(Configuration);
-
             services.AddControllers(options => options.SuppressAsyncSuffixInActionNames = false);
 
             // Repository
@@ -39,7 +35,7 @@ namespace ESS.Admin.WebHost
             // Database
             services.AddDbContext<DataContext>(x =>
             {
-                x.UseSqlServer(appOptions.ConnectionString);
+                x.UseSqlServer(Configuration.GetConnectionString("ConnectionString"));
                 x.UseUpperSnakeCaseNamingConvention();
                 x.UseLazyLoadingProxies();
             });
